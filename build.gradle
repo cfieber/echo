@@ -16,7 +16,7 @@
 
 buildscript {
     ext {
-        springBootVersion = "1.2.5.RELEASE"
+        springBootVersion = "1.2.8.RELEASE"
     }
     repositories {
         jcenter()
@@ -34,8 +34,18 @@ allprojects {
     apply plugin: 'jacoco'
     group = "com.netflix.spinnaker.echo"
 
+    ext {
+        spinnakerDependenciesVersion = "0.47.0-dev.1+f01ee93"
+    }
+
+    if (spinnakerDependenciesVersion.indexOf('-dev') != -1) {
+        repositories {
+            mavenLocal()
+        }
+    }
+
     spinnaker {
-        dependenciesVersion = "0.42.0"
+        dependenciesVersion = spinnakerDependenciesVersion
     }
     test {
       testLogging {
@@ -50,6 +60,14 @@ allprojects {
         exclude group: 'org.slf4j', module: 'slf4j-simple'
         resolutionStrategy {
             force 'com.google.guava:guava:15.0'
+            eachDependency {
+              if (it.requested.group == 'org.codehaus.groovy') {
+                it.useVersion '2.4.7'
+              }
+              if (it.requested.group == 'org.spockframework') {
+                it.useVersion '1.1-groovy-2.4-rc-1'
+              }
+            }
         }
     }
 }
