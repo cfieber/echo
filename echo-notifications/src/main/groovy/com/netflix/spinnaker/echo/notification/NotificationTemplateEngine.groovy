@@ -24,7 +24,6 @@ import org.apache.velocity.app.VelocityEngine
 import org.jsoup.Jsoup
 import org.jsoup.examples.HtmlToPlainText
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.ui.velocity.VelocityEngineUtils
 
@@ -34,8 +33,8 @@ class NotificationTemplateEngine {
     @Autowired
     VelocityEngine engine
 
-    @Value('${spinnaker.baseUrl}')
-    String spinnakerUrl
+    @Autowired
+    SpinnakerNotificationConfigurationProperties spinnakerNotificationConfigurationProperties
 
     String build(Notification notification, Type type) {
         VelocityEngineUtils.mergeTemplateIntoString(
@@ -43,7 +42,7 @@ class NotificationTemplateEngine {
             determinateTemplate(engine, notification.templateGroup, type, notification.notificationType),
             "UTF-8",
             [
-                baseUrl     : spinnakerUrl,
+                baseUrl     : spinnakerNotificationConfigurationProperties.baseUrl,
                 notification: notification,
                 htmlToText  : new HtmlToPlainTextFormatter()
             ]

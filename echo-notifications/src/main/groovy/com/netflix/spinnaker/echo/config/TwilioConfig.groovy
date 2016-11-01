@@ -16,6 +16,8 @@
 
 package com.netflix.spinnaker.echo.config
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+
 import static retrofit.Endpoints.newFixedEndpoint
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -23,7 +25,6 @@ import com.netflix.spinnaker.echo.twilio.TwilioService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.codec.binary.Base64
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -37,17 +38,17 @@ import retrofit.converter.JacksonConverter
 @ConditionalOnProperty('twilio.enabled')
 @Slf4j
 @CompileStatic
+@EnableConfigurationProperties(TwilioConfigurationProperties)
 class TwilioConfig {
 
     @Bean
-    Endpoint twilioEndpoint(@Value('${twilio.baseUrl}') String twilioBaseUrl) {
-        newFixedEndpoint(twilioBaseUrl)
+    Endpoint twilioEndpoint(TwilioConfigurationProperties twilioConfigurationProperties) {
+        newFixedEndpoint(twilioConfigurationProperties.baseUrl)
     }
 
     @Bean
     TwilioService twilioService(
-            @Value('${twilio.account}') String username,
-            @Value('${twilio.token}') String password,
+            TwilioConfigurationProperties twilioConfigurationProperties,
             Endpoint twilioEndpoint,
             Client retrofitClient,
             RestAdapter.LogLevel retrofitLogLevel) {
@@ -57,7 +58,7 @@ class TwilioConfig {
         RequestInterceptor authInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestInterceptor.RequestFacade request) {
-                String auth = "Basic " + Base64.encodeBase64String("${username}:${password}".getBytes())
+                String auth = "Basic " + Base64.encodeBase64String("${twilioConfigurationProperties.account}:${twilioConfigurationProperties.token}".getBytes())
                 request.addHeader("Authorization", auth)
             }
         }

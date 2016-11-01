@@ -18,12 +18,13 @@
 
 package com.netflix.spinnaker.echo.config
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+
 import static retrofit.Endpoints.newFixedEndpoint
 
 import com.netflix.spinnaker.echo.hipchat.HipchatService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -35,11 +36,12 @@ import retrofit.client.Client
 @ConditionalOnProperty('hipchat.enabled')
 @Slf4j
 @CompileStatic
+@EnableConfigurationProperties(HipchatConfigurationProperties)
 class HipchatConfig {
 
     @Bean
-    Endpoint hipchatEndpoint(@Value('${hipchat.baseUrl}') String hipchatBaseUrl) {
-        newFixedEndpoint(hipchatBaseUrl)
+    Endpoint hipchatEndpoint(HipchatConfigurationProperties hipchatConfigurationProperties) {
+        newFixedEndpoint(hipchatConfigurationProperties.baseUrl)
     }
 
     @Bean

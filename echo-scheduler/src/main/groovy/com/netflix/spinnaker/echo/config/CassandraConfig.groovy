@@ -18,35 +18,21 @@ package com.netflix.spinnaker.echo.config
 import com.netflix.astyanax.Keyspace
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException
 import com.netflix.spinnaker.kork.astyanax.AstyanaxKeyspaceFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.env.Environment
 /**
  * Enables Cassandra for this project
  */
 @Configuration
 @ConditionalOnExpression('${spinnaker.cassandra.enabled:true}')
-@SuppressWarnings('GStringExpressionWithinString')
+@EnableConfigurationProperties(CassandraConfigurationProperties)
 class CassandraConfig {
 
-    @Value('${spinnaker.cassandra.cluster}')
-    String clusterName
-
-    @Value('${spinnaker.cassandra.keyspace}')
-    String keySpaceName
-
-    @Autowired
-    Environment environment
-
-    @Autowired
-    AstyanaxKeyspaceFactory factory
-
     @Bean
-    Keyspace keySpace() throws ConnectionException {
-        factory.getKeyspace(clusterName, keySpaceName)
+    Keyspace keySpace(AstyanaxKeyspaceFactory factory, CassandraConfigurationProperties cassandraConfigurationProperties) throws ConnectionException {
+        factory.getKeyspace(cassandraConfigurationProperties.cluster, cassandraConfigurationProperties.keyspace)
     }
 
 }

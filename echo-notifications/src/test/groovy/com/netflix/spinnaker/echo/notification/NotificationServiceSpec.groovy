@@ -17,6 +17,8 @@
 package com.netflix.spinnaker.echo.notification
 
 import com.netflix.spinnaker.echo.api.Notification
+import com.netflix.spinnaker.echo.config.HipchatConfigurationProperties
+import com.netflix.spinnaker.echo.config.TwilioConfigurationProperties
 import com.netflix.spinnaker.echo.hipchat.HipchatMessage
 import com.netflix.spinnaker.echo.hipchat.HipchatNotificationService
 import com.netflix.spinnaker.echo.hipchat.HipchatService
@@ -36,15 +38,14 @@ class NotificationServiceSpec extends Specification {
 
     notificationTemplateEngine = new NotificationTemplateEngine(
         engine: velocityEngineFactory.createVelocityEngine(),
-        spinnakerUrl: "SPINNAKER_URL"
-    )
+        spinnakerNotificationConfigurationProperties: new SpinnakerNotificationConfigurationProperties(baseUrl: "SPINNAKER_URL"))
   }
 
   void "should send specific hipchat message"() {
     given:
     def hipchatService = Mock(HipchatService)
     def hipchatNotificationService = new HipchatNotificationService(
-        token: "token",
+        hipchatConfigurationProperties: new HipchatConfigurationProperties(token: "token"),
         notificationTemplateEngine: notificationTemplateEngine,
         hipchat: hipchatService
     )
@@ -68,8 +69,9 @@ class NotificationServiceSpec extends Specification {
     given:
     def twilioService = Mock(TwilioService)
     def twilioNotificationService = new TwilioNotificationService(
-        account: "account",
-        from: "222-333-4444",
+        twilioConfigurationProperties: new TwilioConfigurationProperties(
+          account: "account",
+          from: "222-333-4444"),
         notificationTemplateEngine: notificationTemplateEngine,
         twilioService: twilioService
     )

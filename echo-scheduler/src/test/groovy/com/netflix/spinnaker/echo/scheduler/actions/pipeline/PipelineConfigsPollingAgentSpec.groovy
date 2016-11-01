@@ -18,12 +18,14 @@ package com.netflix.spinnaker.echo.scheduler.actions.pipeline
 import com.netflix.scheduledactions.ActionInstance
 import com.netflix.scheduledactions.ActionsOperator
 import com.netflix.scheduledactions.triggers.CronTrigger
+import com.netflix.spinnaker.echo.config.SchedulerConfigurationProperties
 import com.netflix.spinnaker.echo.model.Pipeline
 import com.netflix.spinnaker.echo.model.Trigger
 import com.netflix.spinnaker.echo.pipelinetriggers.PipelineCache
 import com.netflix.spinnaker.echo.scheduler.actions.pipeline.impl.PipelineConfigsPollingAgent
 import org.springframework.boot.actuate.metrics.CounterService
 import org.springframework.boot.actuate.metrics.GaugeService
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 class PipelineConfigsPollingAgentSpec extends Specification {
@@ -32,7 +34,12 @@ class PipelineConfigsPollingAgentSpec extends Specification {
     def gaugeService = Stub(GaugeService)
     def actionsOperator = Mock(ActionsOperator)
     def pipelineCache = Mock(PipelineCache)
-    @Subject pollingAgent = new PipelineConfigsPollingAgent(counterService, gaugeService, pipelineCache, actionsOperator, 1000000, 'America/Los_Angeles')
+    @Shared def cfg = new SchedulerConfigurationProperties()
+    @Subject pollingAgent = new PipelineConfigsPollingAgent(counterService, gaugeService, pipelineCache, actionsOperator, cfg)
+
+    void setupSpec() {
+      cfg.pipelineConfigsPoller.pollingIntervalMs = 1000000
+    }
 
     void 'when a new pipeline trigger is added, a scheduled action instance is registered with an id same as the trigger id'() {
         given:

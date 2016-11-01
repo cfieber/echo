@@ -18,13 +18,12 @@ package com.netflix.spinnaker.echo.scheduler.actions.pipeline.impl
 
 import com.netflix.scheduledactions.ActionInstance
 import com.netflix.scheduledactions.ActionsOperator
+import com.netflix.spinnaker.echo.config.SchedulerConfigurationProperties
 import com.netflix.spinnaker.echo.model.Pipeline
 import com.netflix.spinnaker.echo.model.Trigger
 import com.netflix.spinnaker.echo.pipelinetriggers.PipelineCache
-import com.netflix.spinnaker.echo.services.Front50Service
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.metrics.CounterService
 import org.springframework.boot.actuate.metrics.GaugeService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
@@ -52,15 +51,14 @@ class PipelineConfigsPollingAgent extends AbstractPollingAgent {
                               GaugeService gaugeService,
                               PipelineCache pipelineCache,
                               ActionsOperator actionsOperator,
-                              @Value('${scheduler.pipelineConfigsPoller.pollingIntervalMs:30000}') long intervalMs,
-                              @Value('${scheduler.cron.timezone:America/Los_Angeles}') String timeZoneId) {
+                              SchedulerConfigurationProperties schedulerConfigurationProperties) {
     super()
     this.counterService = counterService
     this.gaugeService = gaugeService
     this.pipelineCache = pipelineCache
     this.actionsOperator = actionsOperator
-    this.intervalMs = intervalMs
-    this.timeZoneId = timeZoneId
+    this.intervalMs = schedulerConfigurationProperties.pipelineConfigsPoller.pollingIntervalMs
+    this.timeZoneId = schedulerConfigurationProperties.cron.timezone
   }
 
   @Override

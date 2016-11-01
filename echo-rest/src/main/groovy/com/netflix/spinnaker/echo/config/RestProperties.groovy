@@ -16,23 +16,27 @@
 
 package com.netflix.spinnaker.echo.config
 
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
 
 import javax.validation.Valid
 
 /**
  * Helper class to map hosts in properties file into a validated list
  */
-@Configuration
+@Canonical
 @CompileStatic
-@ConfigurationProperties(prefix = 'rest')
+@ConfigurationProperties('rest')
 class RestProperties {
+  String defaultEventName = 'spinnaker_events'
+  String defaultFieldName = 'payload'
+
   @Valid
   List<RestEndpointConfiguration> endpoints
 
+  @Canonical
   static class RestEndpointConfiguration {
     String eventName
     String fieldName

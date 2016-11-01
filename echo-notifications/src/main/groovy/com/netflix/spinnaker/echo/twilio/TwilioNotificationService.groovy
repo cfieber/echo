@@ -16,11 +16,11 @@
 
 package com.netflix.spinnaker.echo.twilio
 
+import com.netflix.spinnaker.echo.config.TwilioConfigurationProperties
 import com.netflix.spinnaker.echo.notification.NotificationService
 import com.netflix.spinnaker.echo.api.Notification
 import com.netflix.spinnaker.echo.notification.NotificationTemplateEngine
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
@@ -35,11 +35,8 @@ class TwilioNotificationService implements NotificationService {
   @Autowired
   NotificationTemplateEngine notificationTemplateEngine
 
-  @Value('${twilio.account}')
-  String account
-
-  @Value('${twilio.from}')
-  String from
+  @Autowired
+  TwilioConfigurationProperties twilioConfigurationProperties
 
   @Override
   boolean supportsType(Notification.Type type) {
@@ -52,8 +49,8 @@ class TwilioNotificationService implements NotificationService {
 
     notification.to.each {
       twilioService.sendMessage(
-          account,
-          from,
+          twilioConfigurationProperties.account,
+          twilioConfigurationProperties.from,
           it,
           body
       )

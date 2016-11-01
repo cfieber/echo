@@ -46,7 +46,7 @@ class EmailNotificationServiceSpec extends Specification {
     sender.setPort(3025)
 
     service.javaMailSender = sender
-    service.from = 'me@localhost'
+    service.emailServiceConfigurationProperties = new EmailServiceConfigurationProperties(from: 'me@localhost')
   }
 
   void cleanupSpec() {
@@ -71,7 +71,7 @@ class EmailNotificationServiceSpec extends Specification {
     then:
     mail.subject == subject
     GreenMailUtil.getBody(mail) == message
-    GreenMailUtil.getAddressList(mail.from) == service.from
+    GreenMailUtil.getAddressList(mail.from) == service.emailServiceConfigurationProperties.from
   }
 
 }

@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spinnaker.echo.pipelinetriggers.orca.OrcaService;
 import com.squareup.okhttp.OkHttpClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,20 +18,14 @@ import rx.schedulers.Schedulers;
 @Configuration
 @ComponentScan("com.netflix.spinnaker.echo.pipelinetriggers")
 @Slf4j
+@EnableConfigurationProperties(OrcaConfigurationProperties.class)
 public class PipelineTriggerConfiguration {
-  private Client retrofitClient;
-
-  @Autowired
-  public void setRetrofitClient(OkHttpClient okHttpClient) {
-    this.retrofitClient = new OkClient(okHttpClient);
+  @Bean
+  public OrcaService orca(OrcaConfigurationProperties orcaConfigurationProperties, OkHttpClient okHttpClient) {
+    return bindRetrofitService(OrcaService.class, orcaConfigurationProperties.getBaseUrl(), new OkClient(okHttpClient));
   }
 
-  @Bean
-  public OrcaService orca(@Value("${orca.baseUrl}") final String endpoint) {
-    return bindRetrofitService(OrcaService.class, endpoint);
-  }
-
-  @Bean
+  @Bean(destroyMethod = "")
   public Scheduler scheduler() {
     return Schedulers.io();
   }
@@ -42,12 +35,7 @@ public class PipelineTriggerConfiguration {
     return 10;
   }
 
-  @Bean
-  public Client retrofitClient() {
-    return new OkClient();
-  }
-
-  private <T> T bindRetrofitService(final Class<T> type, final String endpoint) {
+  private <T> T bindRetrofitService(final Class<T> type, final String endpoint, final Client retrofitClient) {
     log.info("Connecting {} to {}", type.getSimpleName(), endpoint);
 
     return new RestAdapter.Builder().setClient(retrofitClient)

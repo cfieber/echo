@@ -19,16 +19,15 @@
 package com.netflix.spinnaker.echo.config
 
 import com.netflix.spinnaker.config.OkHttpClientConfiguration
-import com.squareup.okhttp.ConnectionPool
+import com.netflix.spinnaker.retrofit.Slf4jRetrofitLogger
 import com.squareup.okhttp.OkHttpClient
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 import static retrofit.Endpoints.newFixedEndpoint
 
 import com.netflix.spinnaker.echo.services.Front50Service
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import retrofit.Endpoint
@@ -39,35 +38,16 @@ import retrofit.client.OkClient
 @Configuration
 @Slf4j
 @CompileStatic
+@EnableConfigurationProperties(Front50ConfigurationProperties)
 class Front50Config {
-  @Autowired
-  OkHttpClientConfiguration okHttpClientConfig
-
-  @Value('${okHttpClient.connectionPool.maxIdleConnections:5}')
-  int maxIdleConnections
-
-  @Value('${okHttpClient.connectionPool.keepAliveDurationMs:300000}')
-  int keepAliveDurationMs
-
-  @Value('${okHttpClient.retryOnConnectionFailure:true}')
-  boolean retryOnConnectionFailure
-
   @Bean
-  OkHttpClient okHttpClient() {
-    def cli = okHttpClientConfig.create()
-    cli.connectionPool = new ConnectionPool(maxIdleConnections, keepAliveDurationMs)
-    cli.retryOnConnectionFailure = retryOnConnectionFailure
-    return cli
+  OkHttpClient okHttpClient(OkHttpClientConfiguration okHttpClientConfig) {
+    return okHttpClientConfig.create()
   }
 
   @Bean
-  LogLevel retrofitLogLevel() {
-    LogLevel.BASIC
-  }
-
-  @Bean
-  Endpoint front50Endpoint(@Value('${front50.baseUrl}') String front50BaseUrl) {
-    newFixedEndpoint(front50BaseUrl)
+  Endpoint front50Endpoint(Front50ConfigurationProperties front50ConfigurationProperties) {
+    newFixedEndpoint(front50ConfigurationProperties.baseUrl)
   }
 
   @Bean
@@ -77,6 +57,7 @@ class Front50Config {
       .setEndpoint(front50Endpoint)
       .setClient(new OkClient(okHttpClient))
       .setLogLevel(retrofitLogLevel)
+      .setLog(new Slf4jRetrofitLogger(Front50Service))
       .build()
       .create(Front50Service)
   }

@@ -20,15 +20,18 @@ import com.netflix.spinnaker.echo.events.EchoEventListener
 import com.netflix.spinnaker.echo.model.Event
 import com.netflix.spinnaker.echo.services.Front50Service
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 
 abstract class AbstractEventNotificationAgent implements EchoEventListener {
 
   @Autowired
   Front50Service front50Service
 
-  @Value('${spinnaker.baseUrl}')
-  String spinnakerUrl
+  @Autowired
+  SpinnakerNotificationConfigurationProperties spinnakerNotificationConfigurationProperties
+
+  String getSpinnakerUrl() {
+    return spinnakerNotificationConfigurationProperties.baseUrl
+  }
 
   static Map CONFIG = [
     'pipeline': [

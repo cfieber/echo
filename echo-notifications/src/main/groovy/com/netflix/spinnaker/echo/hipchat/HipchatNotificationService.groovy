@@ -16,11 +16,11 @@
 
 package com.netflix.spinnaker.echo.hipchat
 
+import com.netflix.spinnaker.echo.config.HipchatConfigurationProperties
 import com.netflix.spinnaker.echo.notification.NotificationService
 import com.netflix.spinnaker.echo.api.Notification
 import com.netflix.spinnaker.echo.notification.NotificationTemplateEngine
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
@@ -35,8 +35,8 @@ class HipchatNotificationService implements NotificationService {
   @Autowired
   NotificationTemplateEngine notificationTemplateEngine
 
-  @Value('${hipchat.token}')
-  String token
+  @Autowired
+  HipchatConfigurationProperties hipchatConfigurationProperties
 
   @Override
   boolean supportsType(Notification.Type type) {
@@ -47,7 +47,7 @@ class HipchatNotificationService implements NotificationService {
   void handle(Notification notification) {
     def body = notificationTemplateEngine.build(notification, NotificationTemplateEngine.Type.BODY)
     notification.to.each {
-      hipchat.sendMessage(token, it, new HipchatMessage(
+      hipchat.sendMessage(hipchatConfigurationProperties.token, it, new HipchatMessage(
           message: body,
           notify: notification.severity == Notification.Severity.HIGH
       ))

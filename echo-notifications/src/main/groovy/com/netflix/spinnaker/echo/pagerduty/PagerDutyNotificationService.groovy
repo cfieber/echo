@@ -18,11 +18,11 @@
 package com.netflix.spinnaker.echo.pagerduty
 
 import com.netflix.spinnaker.echo.api.Notification
+import com.netflix.spinnaker.echo.config.PagerDutyConfigurationProperties
 import com.netflix.spinnaker.echo.notification.NotificationService
 import com.netflix.spinnaker.echo.services.Front50Service
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
@@ -35,8 +35,8 @@ class PagerDutyNotificationService implements NotificationService {
   @Autowired
   PagerDutyService pagerDuty
 
-  @Value('${pagerDuty.token}')
-  String token
+  @Autowired
+  PagerDutyConfigurationProperties pagerDutyConfigurationProperties
 
   @Autowired
   Front50Service front50Service
@@ -50,7 +50,7 @@ class PagerDutyNotificationService implements NotificationService {
   void handle(Notification notification) {
     notification.to.each {
       pagerDuty.createEvent(
-        "Token token=${token}",
+        "Token token=${pagerDutyConfigurationProperties.token}",
         new PagerDutyService.PagerDutyCreateEvent(
           service_key: it,
           client: "Spinnaker (${notification.source.user})",

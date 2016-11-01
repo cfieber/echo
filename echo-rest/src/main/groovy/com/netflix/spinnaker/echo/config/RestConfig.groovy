@@ -16,11 +16,14 @@
 
 package com.netflix.spinnaker.echo.config
 
+import com.netflix.spinnaker.retrofit.Slf4jRetrofitLogger
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+
 import static retrofit.Endpoints.newFixedEndpoint
 
 import com.netflix.spinnaker.echo.rest.RestService
 import groovy.transform.CompileStatic
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -38,18 +41,13 @@ import retrofit.converter.JacksonConverter
 @Configuration
 @ConditionalOnProperty('rest.enabled')
 @CompileStatic
-@SuppressWarnings('GStringExpressionWithinString')
+@EnableConfigurationProperties(RestProperties)
 class RestConfig {
 
   @Bean
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   Client retrofitClient() {
     new OkClient()
-  }
-
-  @Bean
-  LogLevel retrofitLogLevel(@Value('${retrofit.logLevel:BASIC}') String retrofitLogLevel) {
-    return LogLevel.valueOf(retrofitLogLevel)
   }
 
   @Bean
@@ -66,6 +64,7 @@ class RestConfig {
             .setEndpoint(newFixedEndpoint(endpoint.url as String))
             .setClient(retrofitClient)
             .setLogLevel(retrofitLogLevel)
+            .setLog(new Slf4jRetrofitLogger(RestService))
             .setConverter(new JacksonConverter())
             .build()
             .create(RestService),

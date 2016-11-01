@@ -17,11 +17,11 @@
 package com.netflix.spinnaker.echo.events
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.netflix.spinnaker.echo.config.RestProperties
 import com.netflix.spinnaker.echo.config.RestUrls
 import com.netflix.spinnaker.echo.model.Event
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
@@ -39,11 +39,8 @@ class RestEventListener implements EchoEventListener {
   @Autowired
   RestUrls restUrls
 
-  @Value('${rest.defaultEventName:spinnaker_events}')
-  String eventName
-
-  @Value('${rest.defaultFieldName:payload}')
-  String fieldName
+  @Autowired
+  RestProperties restProperties
 
   @Override
   void processEvent(Event event) {
@@ -57,9 +54,9 @@ class RestEventListener implements EchoEventListener {
         }
         if (service.config.wrap) {
           sentEvent = [
-            "eventName": "${service.config.eventName ?: eventName}" as String,
+            "eventName": "${service.config.eventName ?:restProperties.defaultEventName}" as String,
           ]
-          sentEvent["${service.config.fieldName ?: fieldName}" as String] = eventAsMap
+          sentEvent["${service.config.fieldName ?: restProperties.defaultFieldName}" as String] = eventAsMap
         }
         service.client.recordEvent(sentEvent)
       } catch (e) {

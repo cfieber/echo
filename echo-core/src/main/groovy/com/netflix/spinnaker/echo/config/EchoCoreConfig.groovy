@@ -33,13 +33,10 @@ import org.springframework.context.annotation.Configuration
 @ComponentScan('com.netflix.spinnaker.echo.events')
 class EchoCoreConfig {
 
-    @Autowired
-    ApplicationContext context
-
     @Bean
-    EventPropagator propagator() {
+    EventPropagator propagator(ApplicationContext applicationContext) {
         EventPropagator instance = new EventPropagator()
-        context.getBeansOfType(EchoEventListener).values().each {
+        applicationContext.getBeansOfType(EchoEventListener).values().each {
             instance.addListener(it)
         }
         instance

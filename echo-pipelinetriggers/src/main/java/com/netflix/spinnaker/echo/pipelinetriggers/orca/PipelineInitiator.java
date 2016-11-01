@@ -1,12 +1,12 @@
 package com.netflix.spinnaker.echo.pipelinetriggers.orca;
 
 import javax.annotation.PostConstruct;
+
+import com.netflix.spinnaker.echo.config.OrcaConfigurationProperties;
 import com.netflix.spinnaker.echo.model.Pipeline;
-import com.netflix.spinnaker.echo.pipelinetriggers.orca.OrcaService;
 import com.netflix.spinnaker.echo.pipelinetriggers.orca.OrcaService.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.stereotype.Component;
 import rx.Observable;
@@ -26,10 +26,10 @@ public class PipelineInitiator implements Action1<Pipeline> {
   @Autowired
   public PipelineInitiator(CounterService counter,
                            OrcaService orca,
-                           @Value("${orca.enabled:true}") boolean enabled) {
+                           OrcaConfigurationProperties orcaConfigurationProperties) {
     this.counter = counter;
     this.orca = orca;
-    this.enabled = enabled;
+    this.enabled = orcaConfigurationProperties.isEnabled();
   }
 
   @PostConstruct

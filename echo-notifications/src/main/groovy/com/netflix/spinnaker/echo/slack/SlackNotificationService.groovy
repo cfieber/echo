@@ -17,10 +17,10 @@
 package com.netflix.spinnaker.echo.slack
 
 import com.netflix.spinnaker.echo.api.Notification
+import com.netflix.spinnaker.echo.config.SlackConfigurationProperties
 import com.netflix.spinnaker.echo.notification.NotificationService
 import com.netflix.spinnaker.echo.notification.NotificationTemplateEngine
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
@@ -32,8 +32,8 @@ class SlackNotificationService implements NotificationService {
   @Autowired
   SlackService slack
 
-  @Value('${slack.token}')
-  String token
+  @Autowired
+  SlackConfigurationProperties slackConfigurationProperties
 
   @Autowired
   NotificationTemplateEngine notificationTemplateEngine
@@ -48,7 +48,7 @@ class SlackNotificationService implements NotificationService {
     def body = notificationTemplateEngine.build(notification, NotificationTemplateEngine.Type.BODY)
     notification.to.each {
       String address = it.startsWith('#') ? it : "#${it}"
-      slack.sendMessage(token, new SlackMessage(body).buildMessage(), address, true)
+      slack.sendMessage(slackConfigurationProperties.token, new SlackMessage(body).buildMessage(), address, true)
     }
   }
 }

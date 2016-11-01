@@ -1,6 +1,6 @@
 package com.netflix.spinnaker.echo.pipelinetriggers.orca
 
-
+import com.netflix.spinnaker.echo.config.OrcaConfigurationProperties
 import spock.lang.Specification
 import spock.lang.Subject
 import com.netflix.spinnaker.echo.model.Pipeline
@@ -14,7 +14,7 @@ class PipelineInitiatorSpec extends Specification {
 
   def "calls Orca if enabled"() {
     given:
-    @Subject pipelineInitiator = new PipelineInitiator(counter, orca, true)
+    @Subject pipelineInitiator = new PipelineInitiator(counter, orca, new OrcaConfigurationProperties())
 
     when:
     pipelineInitiator.call(pipeline)
@@ -28,7 +28,7 @@ class PipelineInitiatorSpec extends Specification {
 
   def "does not call Orca if disabled"() {
     given:
-    @Subject pipelineInitiator = new PipelineInitiator(counter, orca, false)
+    @Subject pipelineInitiator = new PipelineInitiator(counter, orca, new OrcaConfigurationProperties(enabled: false))
 
     when:
     pipelineInitiator.call(pipeline)

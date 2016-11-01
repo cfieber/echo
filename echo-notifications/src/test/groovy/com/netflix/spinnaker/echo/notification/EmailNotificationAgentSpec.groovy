@@ -31,7 +31,7 @@ class EmailNotificationAgentSpec extends Specification {
   def mailService = Stub(EmailNotificationService)
   def engine = Mock(VelocityEngine)
   @Subject
-  def agent = new EmailNotificationAgent(mailService: mailService, engine: engine)
+  def agent = new EmailNotificationAgent(mailService: mailService, engine: engine, spinnakerNotificationConfigurationProperties: new SpinnakerNotificationConfigurationProperties())
 
   @Unroll
   def "subject is correct for a #type #status notification"() {

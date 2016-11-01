@@ -16,6 +16,7 @@
 
 package com.netflix.spinnaker.echo.events
 
+import com.netflix.spinnaker.echo.config.RestProperties
 import com.netflix.spinnaker.echo.config.RestUrls
 import com.netflix.spinnaker.echo.model.Event
 import com.netflix.spinnaker.echo.rest.RestService
@@ -31,8 +32,7 @@ class RestEventListenerSpec extends Specification {
   RestService restService
 
   void setup() {
-    listener.eventName = 'defaultEvent'
-    listener.fieldName = 'defaultField'
+    listener.restProperties = new RestProperties(defaultEventName: 'defaultEvent', defaultFieldName: 'defaultField')
     listener.restUrls = new RestUrls()
     restService = Mock(RestService)
   }
@@ -53,7 +53,7 @@ class RestEventListenerSpec extends Specification {
 
     then:
     1 * restService.recordEvent({
-      it.eventName == listener.eventName &&
+      it.eventName == listener.restProperties.defaultEventName &&
         it.defaultField == listener.mapper.convertValue(event, Map)
     })
   }
